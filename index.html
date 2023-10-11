@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="./img/icons/icon-192x192.png">
+    <title>Opiskelijaravintolat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Etsi opiskelijaravintoloita läheltäsi">
+    <link rel="icon" href="./favicon.ico">
+    <link rel="apple-touch-icon" href="./img/icons/icon-192x192.png" sizes="180x180">
+    <link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script type="module" src="./src/main.ts" defer></script>
+    <link rel="stylesheet" href="./src/style.css">
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div id="nav-left">
+          <img src="./img/icons/icon-192x192.png" alt="Site Logo" id="logo">
+          <h1>OPISKELIJARAVINTOLAT</h1>
+        </div>
+        <div id="nav-right">
+          <button id="kirj-rekist">Kirjaudu</button>
+        </div>
+      </nav>
+    </header>
+    <div id="container">
+      <div id="suodatin">
+        <h2>SUODATA TULOKSIA</h2>
+        <p class="filter-name">Palveluntarjoaja:</p>
+        <div id="napit">
+          <button id="sodexo" class="ravnappi">Sodexo</button>
+          <button id="compass" class="ravnappi">Compass Group</button>
+          <button id="kaikki" class="ravnappi">Kaikki palveluntarjoajat</button>
+          <p class="huom">*</p>
+        </div>
+        <p class="filter-name">Menutyyppi:</p>
+        <div id="menunapit">
+          <button id="daily" class="menunappi">Päivän menu</button>
+          <button id="weekly" class="menunappi">Viikon menu</button>
+          <p class="huom">*</p>
+        </div>
+        <p class="filter-name">Kaupunki:</p>
+        <select name="kaupunki-suodatin" id="kaupungit">
+          <option>Kaikki kaupungit</option>
+          <!-- add cities here -->
+        </select>
+        <p class="huom">* pakolliset kentät</p>
+        <button id="haku"><h2>Hae</h2></button>
+      </div>
+      <table id="ravintolat">
+        <!-- add restaurants here -->
+      </table>
+      <!-- modal -->
+      <dialog id="restaurant-screen">
+        <!-- add restaurant info here when restaurant is clicked -->
+      </dialog>
+      <dialog id="login-screen">
+        <div id="tabs">
+          <h2 id="login" class="form-tab open-tab">Kirjaudu sisään</h2>
+          <h2 class="form-tab" id="register">Luo käyttäjätili</h2>
+        </div>
+        <div class="form-cont">
+            <form method="get" class="form-example" id="login-form">
+                <div class="form-example">
+                  <label for="name">Käyttäjänimi: </label>
+                  <input type="text" name="username" id="username" minlength="3" required>
+               </div>
+                <div class="form-example">
+                    <label for="password">Salasana: </label>
+                    <input type="password" name="password" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Anna vähintään 8-merkkinen salasana, joka sisältää pieniä ja suuria kirjaimia sekä numeroita!" required>
+                </div>
+                <div class="login-button">
+                  <input type="submit" value="Kirjaudu" id="kirjaudu">
+                </div>
+            </form>
+        </div>
+    </dialog>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,422 @@
+@font-face {
+  font-family: "Barlow Medium";
+  src: url(../font/Barlow-Medium.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Barlow Bold";
+  src: url(../font/Barlow-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Barlow Light";
+  src: url(../font/Barlow-Light.ttf) format("truetype");
+}
+
+:root {
+  --liter-orng: #ffd59d;
+  --lite-orng: #ffc06b;
+  --orng: #ffa101;
+  --lite-blu: #575757;
+  --drk-blu: #282828;
+  --mid-blu: #3f3f3f;
+  --blck: #121212;
+}
+
+
+
+body {
+  background-color: #f0f0f0;
+  font-family: 'Barlow', sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background-color: var(--lite-orng);
+  background-color: var(--blck);
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23fae6b1' fill-opacity='0.39' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+nav {
+  width: 100%;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-content: stretch;
+  margin: auto;
+  background-image: linear-gradient(to right, var(--mid-blu) , var(--drk-blu));
+}
+
+#logo {
+  max-height: 50px;
+  padding: 1rem;
+  margin-left: 2rem;
+}
+
+h1 {
+  font-family: 'Barlow Bold', sans-serif;
+  margin: auto auto auto 1rem;
+  padding: 1rem;
+  color: var(--lite-orng);
+  text-shadow: 2px 2px 4px rgb(15, 17, 22);
+}
+
+button {
+  padding: auto;
+  cursor: pointer;
+  border: hidden;
+  font-family: 'Barlow Medium', sans-serif;
+  border-radius: 5px;
+  background-color: var(--lite-orng);
+  box-shadow: rgba(20, 20, 21, 0.256) 0px 7px 29px 0px;
+
+}
+
+button:hover {
+  background-color: var(--orng);
+  box-shadow: rgba(20, 20, 21, 0.745) 0px 7px 29px 0px;
+}
+
+#kirj-rekist {
+  padding: 10px;
+  margin: auto 3rem auto auto;
+}
+
+#container {
+  width: 90%;
+  max-width: 100%;
+  margin: auto;
+}
+
+#suodatin {
+  width: 40%;
+  margin: 3rem auto;
+  padding: 1rem;
+  border: hidden;
+  border-radius: 1rem;
+  background-image: linear-gradient(to right, var(--lite-blu) , var(--mid-blu));
+  box-shadow: rgba(20, 20, 21, 0.256) 0px 7px 29px 0px;
+}
+
+h2 {
+  margin: 1rem auto;
+  font-family: 'Barlow Bold', sans-serif;
+  color: var(--lite-orng);
+  text-shadow: 2px 2px 4px rgb(15, 17, 22);
+}
+
+#restaurant-name {
+  font-size: xx-large;
+}
+
+#napit {
+  max-width: 80%;
+  margin: 1rem auto;
+  display: inline-flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#menunapit {
+  width: 55%;
+  margin: 1rem auto;
+  padding-bottom: 1rem;
+  display: inline-flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#kaupungit {
+  margin: 1rem auto 2rem;
+  padding: 1rem;
+  border: hidden;
+  border-radius: 5px;
+  font-family: 'Barlow Light', sans-serif;
+  background-color: var(--lite-orng);
+  box-shadow: rgba(20, 20, 21, 0.256) 0px 7px 29px 0px;
+  cursor: pointer;
+}
+
+option {
+  cursor: pointer;
+}
+
+.huom {
+  font-family: 'Barlow Medium', sans-serif;
+  color: black;
+}
+
+label {
+  font-family: 'Barlow Medium', sans-serif;
+  display: flex;
+  margin: auto;
+}
+
+.filter-name {
+  margin: 0.5rem auto;
+}
+
+#haku {
+  padding: 0.5rem 2rem;
+}
+
+#haku h2 {
+  color: black;
+  text-shadow: none;
+}
+
+.focus {
+  background-color: var(--orng);
+}
+
+table {
+  border: #31525b;
+  border-spacing: 0;
+  margin: 2rem auto;
+  padding: 0;
+  font-family: 'Barlow Medium', sans-serif;
+}
+
+#ravintolat {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 100%;
+}
+
+#courses {
+  display: inline-flex;
+}
+
+th {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  font-weight: normal;
+  padding: 0.5em 1em;
+  text-align: left;
+}
+
+tr {
+  border: 1px solid #ccc;
+  padding: 1em 1em;
+}
+
+#table-headers th {
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+  background-color: var(--orng);
+  font-family: 'Barlow Bold', sans-serif;
+  border: var(--drk-blu) 1px solid
+}
+
+#ravintolat tr {
+  display: inline-flex;
+  place-items: center;
+}
+
+#ravintolat tr:not(.nearest) {
+  background-color: var(--liter-orng);
+}
+
+#ravintolat tr:hover {
+  background-color: #b2e2e9;
+  cursor: pointer;
+}
+
+#ravintolat tr.focus {
+  background-color: #4b8b9c;
+}
+
+#courses tr {
+  margin: auto;
+}
+
+td {
+  margin: auto;
+}
+
+#courses tr td {
+  border: var(--drk-blu) 1px solid;
+  padding: 0.5em 1em;
+  text-align: left;
+  background-color: var(--lite-orng);
+}
+
+#course-row {
+  padding: 1rem;
+}
+
+.nearest {
+  background-color: var(--lite-orng);
+}
+
+#ravintolat tr.nearest:hover {
+  background-color: #D6E4CD;
+}
+
+#ravintolat tr.nearest.highlight {
+  background-color: var(--orng);
+}
+
+.highlight {
+  font-weight: bold;
+  background-color: var(--mid-blu);
+}
+
+.star-cont {
+  padding: auto 0;
+  margin-right: 0;
+}
+
+#fave-star {
+  max-width: 20px;
+}
+
+#fave-star:hover {
+  cursor: pointer;
+}
+
+dialog {
+  border: transparent;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+#restaurant-screen {
+  border: none !important;
+  background-image: linear-gradient(to right, var(--lite-blu) , var(--mid-blu));
+  border-radius: 10px;
+  display: hidden;
+  font-family: 'Barlow Medium', sans-serif;
+}
+
+span {
+  position: absolute;
+  right: 1.5rem;
+  top: 1rem;
+  font-weight: bolder;
+  background-color: var(--orng);
+  padding: 0.8rem 1rem;
+  border-radius: 100px;
+  color: var(--drk-blu)
+}
+
+#rest-info {
+  margin: 3rem 2rem 0;
+}
+
+h3 {
+  margin-top: 4rem;
+  padding: 0 2em 0 2em;
+}
+
+span:hover {
+  cursor: pointer;
+}
+
+#close-dialog {
+  font-weight: bolder;
+}
+
+#close_dialog:hover {
+  cursor: pointer;
+  box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+#login-screen {
+  border: none !important;
+  padding: 0;
+  max-width: 700px;
+  background-color: #31525b00;
+  display: hidden;
+  font-family: 'Barlow Medium', sans-serif;
+}
+
+#tabs {
+  display: flex;
+  margin: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+#tabs h2 {
+  margin-top: 0;
+  font-size: medium;
+  text-align: center;
+}
+
+.form-tab {
+  background-color: var(--mid-blu);
+  margin-right: 0;
+  margin-bottom: 0;
+  padding: 1rem;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  cursor: pointer;
+}
+
+.form-tab:not(.open-tab):hover {
+  text-shadow: 2px 2px 7px #000000;
+}
+
+.form-tab.open-tab {
+  margin-left: 0;
+  margin-bottom: 0;
+  padding: 1rem;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  background-color: var(--lite-blu);
+  cursor: default;
+}
+
+dialog::backdrop {
+  backdrop-filter: blur(5px) brightness(0.5);
+}
+
+.form-cont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding-top: 1rem;
+  background-color: var(--lite-blu);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.login-button {
+  margin: auto;
+}
+
+div.form-example {
+  display: table-row;
+}
+
+a {
+  margin: auto;
+  padding: 1rem;
+  font-size: small;
+}
+
+#kirjaudu {
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--lite-orng);
+  box-shadow: rgba(20, 20, 21, 0.256) 0px 7px 29px 0px;
+  font-weight: 700;
+}
+
+#kirjaudu:hover {
+  background-color: var(--orng);
+  box-shadow: rgba(20, 20, 21, 0.745) 0px 7px 29px 0px;
+}
+
+input {
+  display: table-cell;
+  margin-bottom: 10px;
+}
+
+input:invalid {
+  text-decoration: underline red dotted;
+}
+
+label {
+  padding-right: 10px;
+}
