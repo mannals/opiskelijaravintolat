@@ -48,6 +48,88 @@ modal.addEventListener('click', () => {
 const calculateDistance = (x1: number, y1: number, x2: number, y2: number) =>
   Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 
+const login = async (user: {
+  username: string;
+  password: string;
+  }): Promise<LoginUser> => {
+    const options: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+    };
+    return await fetchData<LoginUser>(apiUrl + '/auth/login', options);
+};
+
+const getUserData = async (token: string): Promise<User> => {
+  const options: RequestInit = {
+    headers: {
+      Authorization: 'Bearer ' + token,
+    }
+  };
+  return await fetchData<User>(apiUrl + '/users/token', options)
+};
+
+const addUserDataToDom = (user: User): void => {
+  console.log('addUserDataToDom reached');
+  const navRight = document.querySelector('#nav-right');
+
+  if (!navRight) {
+    return;
+  }
+  navRight.innerHTML = '';
+  const userTarget = document.createElement('span');
+  const usernameText = document.createElement('p');
+  userTarget.id = "user-target";
+  usernameText.id = "username-display";
+  usernameText.innerHTML = user.username;
+  const avatarTarget = document.createElement('img');
+  avatarTarget.id = "avatar-target";
+  if (user.avatar) {
+    avatarTarget.src = uploadUrl + user.avatar;
+  } else {
+    avatarTarget.src = './img/empty-user.png';
+  }
+  const dropdownArrow = document.createElement('img');
+  dropdownArrow.id = "dropdown-arrow";
+  dropdownArrow.src = './img/dropdown-arrow.png';
+
+  const dropdownContent = document.createElement('div');
+  dropdownContent.classList.add("dropdown-content");
+  dropdownContent.classList.add("visible");
+  dropdownContent.id = "dropdown";
+
+  const faveRestaurants = document.createElement('p');
+  faveRestaurants.id = "fav-restaurants";
+  faveRestaurants.innerText = 'Suosikit';
+
+  const logoutBtn = document.createElement('p');
+  logoutBtn.id = "logout-btn";
+  logoutBtn.innerText = 'Kirjaudu ulos';
+
+  dropdownContent.appendChild(faveRestaurants);
+  dropdownContent.appendChild(logoutBtn);
+
+  userTarget.appendChild(avatarTarget);
+  userTarget.appendChild(usernameText);
+  userTarget.appendChild(dropdownArrow);
+  userTarget.appendChild(dropdownContent);
+
+  navRight.appendChild(userTarget);
+
+};
+
+const checkToken = async (): Promise<void> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return;
+  }
+
+  const userData = await getUserData(token);
+  addUserDataToDom(userData);
+};
+
 const createTable = (restaurants: Restaurant[]) => {
   const table = document.querySelector('table');
   if (!table) throw new Error('Table not found!');
@@ -229,12 +311,18 @@ const success = async (pos: GeolocationPosition) => {
     const formContainer = document.querySelector('.form-cont');
 
     const loginTab = <HTMLHeadingElement>document.querySelector('#login');
-    const loginBtn = document.getElementById("kirjaudu");
+    const loginBtn = document.querySelector("#kirjaudu-btn");
     const loginForm = document.querySelector('#login-form');
     const usernameInput = document.querySelector('#username') as HTMLInputElement | null;
     const passwordInput = document.querySelector('#password') as HTMLInputElement | null;
 
     const registerTab = <HTMLElement>document.querySelector('#register');
+
+    window.onclick = function(event) {
+      if (event.target == loginDialog) {
+        loginDialog.style.display = "none";
+      }
+    }
 
 
     if (!loginDialog || !formContainer) throw new Error('No login dialog found!')
@@ -309,49 +397,19 @@ const success = async (pos: GeolocationPosition) => {
       };
     });
 
-    // Function to login
-    const login = async (user: {
-      username: string;
-      password: string;
-    }): Promise<LoginUser> => {
-      const options: RequestInit = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(user),
-      };
-      return await fetchData<LoginUser>(apiUrl + '/auth/login', options);
-    };
+    const logoutBtn = document.querySelector('#logout-btn');
+    const navRight = document.querySelector('#nav-right') as HTMLDivElement | null;
 
-    const addUserDataToDom = (user: User): void => {
-      const userTarget = document.querySelector('#nav-right');
 
-      if (!userTarget || !usernameInput || !passwordInput) {
-        return;
-      }
-      userTarget.innerHTML = '';
-      const usernameTarget = document.createElement('span');
-      usernameTarget.id = "username-target";
-      usernameTarget.innerHTML = user.username;
-      const avatarTarget = document.createElement('img');
-      avatarTarget.id = "avatar-target";
-      if (user.avatar) {
-        avatarTarget.src = uploadUrl + user.avatar;
-      } else {
-        avatarTarget.src = './img/empty-user.png';
-      }
-      avatarTarget.width = 50;
+    logoutBtn?.addEventListener('click', () => {
+      localStorage.clear();
+      if (!navRight) throw new Error('Error logging out.');
+      navRight.innerHTML = '';
+      navRight.insertAdjacentHTML('beforeend', `<button id="kirj-rekist">Kirjaudu</button>`);
+      location.reload();
+    })
 
-      const logoutBtn = document.createElement('button');
-      logoutBtn.id = "logout-btn";
-      logoutBtn.innerHTML = 'Kirjaudu ulos';
-
-      userTarget.appendChild(usernameTarget);
-      userTarget.appendChild(avatarTarget);
-      userTarget.appendChild(logoutBtn);
-
-    };
+    checkToken();
 
     loginForm?.addEventListener('submit', async (evt) => {
       evt.preventDefault();
@@ -363,11 +421,13 @@ const success = async (pos: GeolocationPosition) => {
         password: passwordInput.value,
       };
 
+      console.log('Logging in...');
       const loginData = await login(user);
       console.log(loginData);
 
       localStorage.setItem('token', loginData.token);
       addUserDataToDom(loginData.data);
+      console.log('User data added to DOM!');
     });
 
 
