@@ -223,7 +223,7 @@ const success = async (pos: GeolocationPosition) => {
       const distanceB = calculateDistance(x1, y1, x2b, y2b);
       return distanceA - distanceB;
     });
-    // buttons for filtering
+
     const restBtns = document.querySelectorAll('.ravnappi');
     const sodexoBtn = document.querySelector('#sodexo');
     const compassBtn = document.querySelector('#compass');
@@ -318,12 +318,6 @@ const success = async (pos: GeolocationPosition) => {
 
     const registerTab = <HTMLElement>document.querySelector('#register');
 
-    window.onclick = function(event) {
-      if (event.target == loginDialog) {
-        loginDialog.style.display = "none";
-      }
-    }
-
 
     if (!loginDialog || !formContainer) throw new Error('No login dialog found!')
 
@@ -337,7 +331,6 @@ const success = async (pos: GeolocationPosition) => {
     };
 
     openDialogBtn?.addEventListener("click", openDialog);
-    loginBtn?.addEventListener("click", closeDialog);
 
 
     registerTab?.addEventListener("click", () => {
@@ -369,6 +362,7 @@ const success = async (pos: GeolocationPosition) => {
       </form>
       `;
       formContainer.insertAdjacentHTML('beforeend', html);
+      console.log('Register tab clicked');
     };
     });
 
@@ -379,17 +373,17 @@ const success = async (pos: GeolocationPosition) => {
         loginTab.classList.add('open-tab');
         formContainer.innerHTML = '';
         let html = `
-        <form method="get" class="form-example" id="login-form">
+        <form method="post" class="form-example" id="login-form">
         <div class="form-example">
           <label for="name">Käyttäjänimi: </label>
           <input type="text" name="name" id="name" minlength="3" required>
        </div>
         <div class="form-example">
             <label for="password">Salasana: </label>
-            <input type="password" name="password" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Anna vähintään 8-merkkinen salasana, joka sisältää pieniä ja suuria kirjaimia sekä numeroita!" required>
+            <input type="password" name="password" id="password" required>
         </div>
         <div class="login-button">
-          <input type="submit" value="Kirjaudu" id="kirjaudu">
+          <input type="submit" value="Kirjaudu" id="kirjaudu-btn">
         </div>
         </form>
         `;
@@ -408,10 +402,10 @@ const success = async (pos: GeolocationPosition) => {
       navRight.insertAdjacentHTML('beforeend', `<button id="kirj-rekist">Kirjaudu</button>`);
       location.reload();
     })
-
-    checkToken();
+    console.log(loginForm);
 
     loginForm?.addEventListener('submit', async (evt) => {
+      console.log('Login form submission started');
       evt.preventDefault();
       if (!usernameInput || !passwordInput) {
         return;
@@ -428,6 +422,8 @@ const success = async (pos: GeolocationPosition) => {
       localStorage.setItem('token', loginData.token);
       addUserDataToDom(loginData.data);
       console.log('User data added to DOM!');
+      closeDialog(evt);
+      checkToken();
     });
 
 

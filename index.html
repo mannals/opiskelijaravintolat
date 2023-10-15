@@ -63,16 +63,16 @@
           <h2 class="form-tab" id="register">Luo käyttäjätili</h2>
         </div>
         <div class="form-cont">
-            <form method="get" class="form-example" id="login-form">
+            <form method="post" class="form-example" id="login-form">
                 <div class="form-example">
                   <label for="username">Käyttäjänimi: </label>
                   <input type="text" name="username" id="username" minlength="3" required>
                </div>
                 <div class="form-example">
                     <label for="password">Salasana: </label>
-                    <input type="password" name="password" id="password" title="Anna vähintään 8-merkkinen salasana, joka sisältää pieniä ja suuria kirjaimia sekä numeroita!" required>
+                    <input type="password" name="password" id="password" required>
                 </div>
-                <div class="form-example login-button">
+                <div class="login-button">
                   <input type="submit" value="Kirjaudu" id="kirjaudu-btn">
                 </div>
             </form>
