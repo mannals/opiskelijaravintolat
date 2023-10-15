@@ -7,6 +7,7 @@ interface User {
   avatar: string;
   role: string;
   email: string;
+  activated?: boolean;
 }
 
 interface LoginUser {
@@ -15,9 +16,15 @@ interface LoginUser {
   data: User;
 }
 
+interface RegisterUser {
+  message: string;
+  data: User;
+  activationUrl: string;
+}
+
 interface UpdateUser {
   username: string;
   email: string;
 }
 
-export type {User, LoginUser, UpdateUser};
+export type {User, LoginUser, RegisterUser, UpdateUser};

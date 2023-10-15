@@ -3,7 +3,7 @@ import {fetchData} from './functions';
 import {apiUrl, uploadUrl, positionOptions} from './variables';
 import {Restaurant} from './interfaces/Restaurant';
 import {WeeklyMenu, DailyMenu} from './interfaces/Menu';
-import {LoginUser, User} from './interfaces/User';
+import {LoginUser, RegisterUser, User} from './interfaces/User';
 import { registerSW } from 'virtual:pwa-register';
 
 const updateSW = registerSW({
@@ -25,6 +25,7 @@ let dailySelected = false;
 let weeklySelected = false;
 let citySelected = 'Kaikki kaupungit';
 let companySelected = 'Kaikki yritykset';
+let loggedIn = false;
 
 const selection = document.querySelector('select');
 if (!selection) {
@@ -37,7 +38,7 @@ const selectedCity = (sel: HTMLSelectElement) => {
   console.log(citySelected);
 }
 
-const modal = document.querySelector('dialog');
+const modal = document.querySelector('#restaurant-screen') as HTMLDialogElement | null;
 if (!modal) {
   throw new Error('Modal not found');
 }
@@ -61,6 +62,22 @@ const login = async (user: {
     };
     return await fetchData<LoginUser>(apiUrl + '/auth/login', options);
 };
+
+const register = async (user: {
+  username: string;
+  password: string;
+  email: string;
+}): Promise<RegisterUser> => {
+  console.log('Registration function accessed');
+  const options: RequestInit = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(user),
+  };
+  return await fetchData<RegisterUser>(apiUrl + '/users', options);
+}
 
 const getUserData = async (token: string): Promise<User> => {
   const options: RequestInit = {
@@ -97,7 +114,7 @@ const addUserDataToDom = (user: User): void => {
 
   const dropdownContent = document.createElement('div');
   dropdownContent.classList.add("dropdown-content");
-  dropdownContent.classList.add("visible");
+  dropdownContent.classList.add("hidden");
   dropdownContent.id = "dropdown";
 
   const faveRestaurants = document.createElement('p');
@@ -116,9 +133,33 @@ const addUserDataToDom = (user: User): void => {
   userTarget.appendChild(dropdownArrow);
   userTarget.appendChild(dropdownContent);
 
+  let dropdownVisible = false;
+
+  dropdownArrow.addEventListener('click', () => {
+    if (!dropdownVisible) {
+      dropdownContent.classList.replace('hidden', 'visible');
+      dropdownVisible = true;
+    } else {
+      dropdownContent.classList.replace('visible', 'hidden');
+      dropdownVisible = false;
+    }
+  });
+
   navRight.appendChild(userTarget);
 
 };
+
+const deleteUserDataFromDOM = (): void => {
+  console.log('Deleting user data from DOM...');
+  const navRight = document.querySelector('#nav-right');
+
+  if (!navRight) {
+    return;
+  }
+  navRight.innerHTML = '';
+  navRight.insertAdjacentHTML('beforeend', `<button id="kirj-rekist">Kirjaudu</button>`);
+
+}
 
 const checkToken = async (): Promise<void> => {
   const token = localStorage.getItem('token');
@@ -155,9 +196,15 @@ const createTable = (restaurants: Restaurant[]) => {
       faveStar.src = './img/empty-star.png';
     });
 
-    faveStar.addEventListener('click', () => {
-      faveStar.src = './img/fave-star.png';
-      tr.classList.add('favorite');
+    faveStar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!loggedIn) {
+        alert('Kirjaudu sisään suosikkien tallentamiseksi!');
+        return;
+      } else {
+        faveStar.src = './img/fave-star.png';
+        tr.classList.add('favorite');
+      };
     })
 
 
@@ -311,7 +358,6 @@ const success = async (pos: GeolocationPosition) => {
     const formContainer = document.querySelector('.form-cont');
 
     const loginTab = <HTMLHeadingElement>document.querySelector('#login');
-    const loginBtn = document.querySelector("#kirjaudu-btn");
     const loginForm = document.querySelector('#login-form');
     const usernameInput = document.querySelector('#username') as HTMLInputElement | null;
     const passwordInput = document.querySelector('#password') as HTMLInputElement | null;
@@ -339,22 +385,22 @@ const success = async (pos: GeolocationPosition) => {
       registerTab.classList.add('open-tab');
       formContainer.innerHTML = '';
       let html = `
-      <form method="get" class="form-example">
+      <form method="get" class="form-example" id="register-form">
       <div class="form-example">
-        <label for="name">Käyttäjänimi: </label>
-        <input type="text" name="name" id="name" minlength="3" required>
+        <label for="regist-username">Käyttäjänimi: </label>
+        <input type="text" name="username" id="regist-username" minlength="3" required>
       </div>
       <div class="form-example">
-        <label for="email">Sähköposti: </label>
-        <input type="email" name="email" id="email" required>
+        <label for="regist-email">Sähköposti: </label>
+        <input type="email" name="email" id="regist-email" required>
       </div>
       <div class="form-example">
-          <label for="password">Salasana: </label>
-          <input type="password" name="password" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Anna vähintään 8-merkkinen salasana, joka sisältää pieniä ja suuria kirjaimia sekä numeroita!" required>
+          <label for="regist-password">Salasana: </label>
+          <input type="password" name="password" id="regist-password" required>
       </div>
       <div class="form-example">
-          <label for="password2">Salasana uudelleen: </label>
-          <input type="password" name="password2" id="password2" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Anna sama salasana uudelleen!" required>
+          <label for="regist-password2">Salasana uudelleen: </label>
+          <input type="password" name="password2" id="regist-password2" title="Anna sama salasana uudelleen!" required>
       </div>
       <div class="regist-button">
         <input type="submit" value="Rekisteröidy" id="rekisteroidy">
@@ -363,6 +409,43 @@ const success = async (pos: GeolocationPosition) => {
       `;
       formContainer.insertAdjacentHTML('beforeend', html);
       console.log('Register tab clicked');
+
+      const registerForm = document.querySelector('#register-form') as HTMLFormElement | null;
+      const registUsername = document.querySelector('#regist-username') as HTMLInputElement | null;
+      const registEmail = document.querySelector('#regist-email') as HTMLInputElement | null;
+      const regPswd = document.querySelector('#regist-password') as HTMLInputElement | null;
+      const regPswd2 = document.querySelector('#regist-password2') as HTMLInputElement | null;
+
+      registerForm?.addEventListener('submit', async (e) => {
+        console.log('Registration started');
+        e.preventDefault();
+
+        if (!registUsername || !registEmail || !regPswd || !regPswd2) return;
+
+        if (regPswd.value != regPswd2.value) {
+          alert('Salasanat eivät täsmää! Yritä uudelleen!');
+          return;
+        }
+        const user = {
+          username: registUsername.value,
+          password: regPswd.value,
+          email: registEmail.value
+        };
+
+        console.log('Registering user...');
+        const registData = await register(user);
+        console.log(registData.message);
+        if (registData.message === "user created") {
+          loginDialog.close();
+          const activationPopup = document.querySelector('#activate') as HTMLDialogElement | null;
+          const activationLink = document.createElement('a');
+          activationLink.href = registData.activationUrl;
+          activationLink.innerText = 'TÄSTÄ';
+
+          activationPopup?.insertAdjacentHTML('beforeend', 'Aktivoi tilisi ' + activationLink);
+          activationPopup?.showModal();
+        }
+      })
     };
     });
 
@@ -375,8 +458,8 @@ const success = async (pos: GeolocationPosition) => {
         let html = `
         <form method="post" class="form-example" id="login-form">
         <div class="form-example">
-          <label for="name">Käyttäjänimi: </label>
-          <input type="text" name="name" id="name" minlength="3" required>
+          <label for="username">Käyttäjänimi: </label>
+          <input type="text" name="username" id="username" minlength="3" required>
        </div>
         <div class="form-example">
             <label for="password">Salasana: </label>
@@ -391,15 +474,12 @@ const success = async (pos: GeolocationPosition) => {
       };
     });
 
-    const logoutBtn = document.querySelector('#logout-btn');
-    const navRight = document.querySelector('#nav-right') as HTMLDivElement | null;
-
+    const logoutBtn = document.querySelector('#logout-btn') as HTMLButtonElement | null;
 
     logoutBtn?.addEventListener('click', () => {
+      deleteUserDataFromDOM();
       localStorage.clear();
-      if (!navRight) throw new Error('Error logging out.');
-      navRight.innerHTML = '';
-      navRight.insertAdjacentHTML('beforeend', `<button id="kirj-rekist">Kirjaudu</button>`);
+      checkToken();
       location.reload();
     })
     console.log(loginForm);
@@ -407,9 +487,8 @@ const success = async (pos: GeolocationPosition) => {
     loginForm?.addEventListener('submit', async (evt) => {
       console.log('Login form submission started');
       evt.preventDefault();
-      if (!usernameInput || !passwordInput) {
-        return;
-      }
+      if (!usernameInput || !passwordInput) return;
+
       const user = {
         username: usernameInput.value,
         password: passwordInput.value,
@@ -418,6 +497,7 @@ const success = async (pos: GeolocationPosition) => {
       console.log('Logging in...');
       const loginData = await login(user);
       console.log(loginData);
+      loggedIn = true;
 
       localStorage.setItem('token', loginData.token);
       addUserDataToDom(loginData.data);

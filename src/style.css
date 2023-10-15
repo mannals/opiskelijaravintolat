@@ -138,10 +138,10 @@ button:hover {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   margin-top: 0.3rem;
-  background: var(--liter-orng);
+  background: var(--lite-orng);
 }
 
-#dropdown p {
+.visible p {
   display: flex;
   align-items: center;
   column-gap: var(--gap);
@@ -150,8 +150,8 @@ button:hover {
   color: black;
 }
 
-#dropdown p:hover {
-  background-color: var(--color);
+.visible p:hover {
+  background-color: var(--liter-orng);
   color: var(--mid-blu);
 }
 
@@ -354,6 +354,14 @@ dialog {
 }
 
 #restaurant-screen {
+  border: none !important;
+  background-image: linear-gradient(to right, var(--lite-blu) , var(--mid-blu));
+  border-radius: 10px;
+  display: hidden;
+  font-family: 'Barlow Medium', sans-serif;
+}
+
+#activate {
   border: none !important;
   background-image: linear-gradient(to right, var(--lite-blu) , var(--mid-blu));
   border-radius: 10px;
