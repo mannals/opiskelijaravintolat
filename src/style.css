@@ -31,9 +31,7 @@ body {
   margin: 0;
   padding: 0;
   text-align: center;
-  background-color: var(--lite-orng);
-  background-color: var(--blck);
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23fae6b1' fill-opacity='0.39' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-color: rgb(254, 241, 217);
 }
 
 header {
@@ -162,13 +160,13 @@ button:hover {
 }
 
 #suodatin {
-  width: 40%;
+  width: 50%;
   margin: 3rem auto;
   padding: 1rem;
   border: hidden;
   border-radius: 1rem;
   background-image: linear-gradient(to right, var(--lite-blu) , var(--mid-blu));
-  box-shadow: rgba(20, 20, 21, 0.256) 0px 7px 29px 0px;
+  box-shadow: rgba(20, 20, 21, 0.486) 0px 7px 29px 0px;
 }
 
 h2 {
@@ -216,13 +214,14 @@ option {
 
 .huom {
   font-family: 'Barlow Medium', sans-serif;
-  color: black;
+  color: wheat;
 }
 
 label {
   font-family: 'Barlow Medium', sans-serif;
   display: flex;
   margin: auto;
+  text-shadow: 1px 0 black;
 }
 
 .filter-name {
@@ -359,6 +358,10 @@ dialog {
   border-radius: 10px;
   display: hidden;
   font-family: 'Barlow Medium', sans-serif;
+}
+
+#restaurant-screen p {
+  color: wheat;
 }
 
 #activate {
@@ -503,4 +506,56 @@ input:invalid {
 
 label {
   padding-right: 10px;
+}
+
+@media (max-width: 800px) {
+  #suodatin {
+    width: 60%;
+  }
+
+  #napit {
+    max-width: 90%;
+  }
+
+  #menunapit {
+    width: 90%;
+  }
+
+  #ravintolat {
+    display: block;
+  }
+
+  tr {
+    width: 90%;
+  }
+}
+
+@media (max-width: 600px) {
+  #logo {
+    margin-left: 1rem;
+  }
+
+  h1 {
+    margin: auto auto auto 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 540px) {
+  h1 {
+    font-size: larger;
+  }
+
+  #napit {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ravnappi {
+    padding: 0.5rem;
+  }
+
+  #courses {
+    font-size: small;
+  }
 }

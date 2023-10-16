@@ -513,4 +513,5 @@ const success = async (pos: GeolocationPosition) => {
   }
 };
 
-navigator.geolocation.getCurrentPosition(success, error, positionOptions);
+
+if (confirm('Annatko sivulle luvan käyttää sijaintitietojasi?')) navigator.geolocation.getCurrentPosition(success, error, positionOptions);
