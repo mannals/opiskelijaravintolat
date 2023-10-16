@@ -5,6 +5,10 @@ import {Restaurant} from './interfaces/Restaurant';
 import {WeeklyMenu, DailyMenu} from './interfaces/Menu';
 import {LoginUser, RegisterUser, User} from './interfaces/User';
 import { registerSW } from 'virtual:pwa-register';
+import { map, latLng, tileLayer, MapOptions, marker } from "leaflet";
+import 'leaflet/dist/leaflet.css';
+import 'haversine-distance';
+import haversineDistance from 'haversine-distance';
 
 const updateSW = registerSW({
   immediate: true,
@@ -19,7 +23,7 @@ const updateSW = registerSW({
     console.log('onOfflineReady');
     alert('App is offline ready');
   },
-})
+});
 
 let dailySelected = false;
 let weeklySelected = false;
@@ -46,8 +50,21 @@ modal.addEventListener('click', () => {
   modal.close();
 });
 
-const calculateDistance = (x1: number, y1: number, x2: number, y2: number) =>
-  Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+const calcDist = (myLat: number, myLng: number, theirLat: number, theirLng: number) => {
+
+  const myLoc = {
+    lat: myLat,
+    lng: myLng
+  }
+
+  const theirLoc = {
+    lat: theirLat,
+    lng: theirLng
+  }
+
+  const distance = haversineDistance(myLoc, theirLoc) / 1000;
+  return distance;
+}
 
 const login = async (user: {
   username: string;
@@ -171,20 +188,24 @@ const checkToken = async (): Promise<void> => {
   addUserDataToDom(userData);
 };
 
-const createTable = (restaurants: Restaurant[]) => {
+const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
   const table = document.querySelector('table');
   if (!table) throw new Error('Table not found!');
   table.innerHTML = '';
 
   restaurants.forEach((restaurant, index) => {
+    const distance = calcDist(pos.coords.latitude, pos.coords.longitude, restaurant.location.coordinates[1], restaurant.location.coordinates[0])
     const tr = restaurantRow(restaurant);
     if (index === 0) tr.classList.add('nearest');
+    const distTd = document.createElement('td');
+    distTd.innerText = distance.toFixed(1).toString() + " km";
     const starCont = document.createElement('td');
     starCont.classList.add('star-cont');
     const faveStar = document.createElement('img');
     faveStar.src = './img/empty-star.png';
     faveStar.id = 'fave-star';
     starCont.appendChild(faveStar);
+    tr.appendChild(distTd);
     tr.appendChild(starCont);
     table.appendChild(tr);
 
@@ -229,6 +250,19 @@ const createTable = (restaurants: Restaurant[]) => {
 
         const menuHtml = restaurantModal(restaurant, menu);
         modal.insertAdjacentHTML('beforeend', menuHtml);
+        const options: MapOptions = {
+          center: latLng(restaurant.location.coordinates[1], restaurant.location.coordinates[0]),
+          zoom: 4.5,
+        };
+
+        const mymap = map('map', options);
+
+        tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(mymap);
+
+        marker([restaurant.location.coordinates[1], restaurant.location.coordinates[0]]).addTo(mymap);
         } else if (weeklySelected) {
           const menu = await fetchData<WeeklyMenu>(
             apiUrl + `/restaurants/weekly/${restaurant._id}/fi`
@@ -237,6 +271,19 @@ const createTable = (restaurants: Restaurant[]) => {
 
           const menuHtml = restaurantModal(restaurant, menu);
           modal.insertAdjacentHTML('beforeend', menuHtml);
+          const options: MapOptions = {
+            center: latLng(restaurant.location.coordinates[1], restaurant.location.coordinates[0]),
+            zoom: 4.5,
+          };
+
+          const mymap = map('map', options);
+
+          tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          }).addTo(mymap);
+
+          marker([restaurant.location.coordinates[1], restaurant.location.coordinates[0]]).addTo(mymap);
         } else {
           modal.insertAdjacentHTML('beforeend', '<span>X</span><p style="margin-top:3rem;">Valitse ensin ruokalista!</p>');
         }
@@ -257,6 +304,7 @@ const error = (err: GeolocationPositionError) => {
 const success = async (pos: GeolocationPosition) => {
   try {
     const crd = pos.coords;
+    console.log(crd);
     const restaurants = await fetchData<Restaurant[]>(apiUrl + '/restaurants');
     console.log(restaurants);
     restaurants.sort((a: Restaurant, b: Restaurant) => {
@@ -264,10 +312,10 @@ const success = async (pos: GeolocationPosition) => {
       const y1 = crd.longitude;
       const x2a = a.location.coordinates[1];
       const y2a = a.location.coordinates[0];
-      const distanceA = calculateDistance(x1, y1, x2a, y2a);
+      const distanceA = calcDist(x1, y1, x2a, y2a);
       const x2b = b.location.coordinates[1];
       const y2b = b.location.coordinates[0];
-      const distanceB = calculateDistance(x1, y1, x2b, y2b);
+      const distanceB = calcDist(x1, y1, x2b, y2b);
       return distanceA - distanceB;
     });
 
@@ -335,20 +383,20 @@ const success = async (pos: GeolocationPosition) => {
 
     searchBtn?.addEventListener('click', () => {
       if (citySelected === 'Kaikki kaupungit' && companySelected === 'Kaikki yritykset') {
-        createTable(restaurants)
+        createTable(restaurants, pos)
       }
       if (citySelected === 'Kaikki kaupungit' && companySelected != 'Kaikki yritykset') {
         const filtered = restaurants.filter((restaurant: Restaurant) => restaurant.company === companySelected);
-        createTable(filtered);
+        createTable(filtered, pos);
       }
       if (citySelected != 'Kaikki kaupungit' && companySelected === 'Kaikki yritykset') {
         const filtered = restaurants.filter((restaurant: Restaurant) => restaurant.city === citySelected);
-        createTable(filtered);
+        createTable(filtered, pos);
       }
       if (citySelected != 'Kaikki kaupungit' && companySelected != 'Kaikki yritykset') {
         const filtered = restaurants.filter((restaurant: Restaurant) => restaurant.city === citySelected && restaurant.company === companySelected);
         if (!filtered) alert('Valitsemillasi suodattimilla ei löytynyt ravintoloita!');
-        createTable(filtered);
+        createTable(filtered, pos);
       }
     });
 

@@ -237,6 +237,14 @@ label {
   text-shadow: none;
 }
 
+#map {
+  height: 450px;
+  width: 70%;
+  margin: auto;
+  display: hidden;
+  padding: 10px;
+}
+
 .focus {
   background-color: var(--orng);
 }
@@ -353,6 +361,7 @@ dialog {
 }
 
 #restaurant-screen {
+  width: 75%;
   border: none !important;
   background-image: linear-gradient(to right, var(--lite-blu) , var(--mid-blu));
   border-radius: 10px;

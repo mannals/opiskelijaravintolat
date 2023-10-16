@@ -35,7 +35,8 @@ const restaurantModal = (restaurant: Restaurant, menu: WeeklyMenu | DailyMenu) =
     <p>${company}</p>
     <p>${address} ${postalCode} ${city}</p>
     <p>${phone}</p>
-  </div>`;
+  </div>
+  <div id="map"></div>`;
   console.log(menu);
   if ('days' in menu) {
     menu.days.forEach((day: DailyMenu) => {
