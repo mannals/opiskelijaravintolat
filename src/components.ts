@@ -29,7 +29,7 @@ const restaurantRow = (restaurant: Restaurant) => {
 
 const restaurantModal = (restaurant: Restaurant, menu: WeeklyMenu | DailyMenu) => {
   const {name, address, city, postalCode, phone, company} = restaurant;
-  let html = `<span id="close-rest-modal">X</span>
+  let html = `<span class="close">X</span>
   <div id="rest-info">
     <h2 id="restaurant-name">${name}</h2>
     <p>${company}</p>

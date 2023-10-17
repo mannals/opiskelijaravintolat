@@ -7,7 +7,6 @@ import {LoginUser, RegisterUser, User} from './interfaces/User';
 import { registerSW } from 'virtual:pwa-register';
 import { map, latLng, tileLayer, MapOptions, marker } from "leaflet";
 import 'leaflet/dist/leaflet.css';
-import 'haversine-distance';
 import haversineDistance from 'haversine-distance';
 
 const updateSW = registerSW({
@@ -51,12 +50,10 @@ modal.addEventListener('click', () => {
 });
 
 const calcDist = (myLat: number, myLng: number, theirLat: number, theirLng: number) => {
-
   const myLoc = {
     lat: myLat,
     lng: myLng
   }
-
   const theirLoc = {
     lat: theirLat,
     lng: theirLng
@@ -164,6 +161,17 @@ const addUserDataToDom = (user: User): void => {
 
   navRight.appendChild(userTarget);
 
+  const favesModal = document.querySelector('#favorites') as HTMLDialogElement | null;
+  const favesTable = document.querySelector('#lempiravintolat') as HTMLTableElement | null;
+
+  faveRestaurants.addEventListener('click', () => {
+    const favesList = document.querySelectorAll('.favorite');
+    favesList.forEach((fave) => {
+      favesTable?.appendChild(fave);
+    })
+    favesModal?.showModal();
+  })
+
 };
 
 const deleteUserDataFromDOM = (): void => {
@@ -209,16 +217,15 @@ const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
     tr.appendChild(starCont);
     table.appendChild(tr);
 
+    let starClicked = false;
+
     faveStar.addEventListener('mouseover', () => {
       faveStar.src = './img/hover-star.png';
     });
 
-    faveStar.addEventListener('mouseout', () => {
-      faveStar.src = './img/empty-star.png';
-    });
-
     faveStar.addEventListener('click', (e) => {
       e.stopPropagation();
+      starClicked = true;
       if (!loggedIn) {
         alert('Kirjaudu sisään suosikkien tallentamiseksi!');
         return;
@@ -226,19 +233,22 @@ const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
         faveStar.src = './img/fave-star.png';
         tr.classList.add('favorite');
       };
-    })
+    });
+
+    faveStar.addEventListener('mouseout', () => {
+      if (!starClicked) faveStar.src = './img/empty-star.png';
+    });
 
 
     tr.addEventListener('click', async () => {
       try {
-        // remove all highlights
         const allHighs = document.querySelectorAll('.highlight');
         allHighs.forEach((high) => {
           high.classList.remove('highlight');
         });
-        // add highlight
+
         tr.classList.add('highlight');
-        // add restaurant data to modal
+
         modal.innerHTML = '';
 
         // fetch menu
@@ -285,7 +295,7 @@ const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
 
           marker([restaurant.location.coordinates[1], restaurant.location.coordinates[0]]).addTo(mymap);
         } else {
-          modal.insertAdjacentHTML('beforeend', '<span>X</span><p style="margin-top:3rem;">Valitse ensin ruokalista!</p>');
+          modal.insertAdjacentHTML('beforeend', '<span class="close">X</span><p style="margin-top:3rem;">Valitse ensin ruokalista!</p>');
         }
 
         modal.showModal();
@@ -474,6 +484,7 @@ const success = async (pos: GeolocationPosition) => {
           alert('Salasanat eivät täsmää! Yritä uudelleen!');
           return;
         }
+
         const user = {
           username: registUsername.value,
           password: regPswd.value,
@@ -486,12 +497,29 @@ const success = async (pos: GeolocationPosition) => {
         if (registData.message === "user created") {
           loginDialog.close();
           const activationPopup = document.querySelector('#activate') as HTMLDialogElement | null;
-          const activationLink = document.createElement('a');
-          activationLink.href = registData.activationUrl;
-          activationLink.innerText = 'TÄSTÄ';
-
-          activationPopup?.insertAdjacentHTML('beforeend', 'Aktivoi tilisi ' + activationLink);
+          activationPopup?.insertAdjacentHTML('beforeend', '<span class="close">X</span><p>Tili luotu onnistuneesti! Kirjataan sisään...</p>');
           activationPopup?.showModal();
+
+          const loginUser = {
+            username: registUsername.value,
+            password: regPswd.value
+          }
+
+          console.log('Logging in...');
+          const userData = await login(loginUser);
+          console.log(userData);
+          loggedIn = true;
+
+          localStorage.setItem('token', userData.token);
+          addUserDataToDom(userData.data);
+          console.log('User data added to DOM!');
+          const closePopup = document.querySelector('#close-act-popup') as HTMLSpanElement | null;
+          if (closePopup) {
+            closePopup.addEventListener('click', () => {
+              activationPopup?.close();
+            })
+          }
+          checkToken();
         }
       })
     };

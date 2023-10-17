@@ -20,7 +20,7 @@
       <nav>
         <div id="nav-left">
           <img src="./img/icons/icon-192x192.png" alt="Site Logo" id="logo">
-          <h1>OPISKELIJARAVINTOLAT</h1>
+          <h1 class="page-title">OPISKELIJARAVINTOLAT</h1>
         </div>
         <div id="nav-right">
           <button id="kirj-rekist">Kirjaudu</button>
@@ -51,7 +51,8 @@
         <p class="huom">* pakolliset kentät</p>
         <button id="haku"><h2>Hae</h2></button>
       </div>
-      <table id="ravintolat">
+
+      <table id="ravintolat" class="rest-table">
         <!-- add restaurants here -->
       </table>
       <!-- modal -->
@@ -80,6 +81,11 @@
         </div>
       </dialog>
       <dialog id="activate"></dialog>
+      <dialog id="favorites">
+        <span class="close"></span>
+        <h2>Lempiravintolasi</h2>
+        <table id="lempiravintolat" class="rest-table"></table>
+      </dialog>
     </div>
   </body>
 </html>
