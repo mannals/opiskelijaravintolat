@@ -3,7 +3,9 @@ import {fetchData} from './functions';
 import {apiUrl, uploadUrl, positionOptions} from './variables';
 import {Restaurant} from './interfaces/Restaurant';
 import {WeeklyMenu, DailyMenu} from './interfaces/Menu';
-import {LoginUser, RegisterUser, User} from './interfaces/User';
+import {LoginUser, RegisterUser, UpdateUser, User} from './interfaces/User';
+import { UpdateResult } from './interfaces/UpdateResult';
+import { UploadResult } from './interfaces/UploadResult';
 import { registerSW } from 'virtual:pwa-register';
 import { map, latLng, tileLayer, MapOptions, marker } from "leaflet";
 import 'leaflet/dist/leaflet.css';
@@ -102,9 +104,45 @@ const getUserData = async (token: string): Promise<User> => {
   return await fetchData<User>(apiUrl + '/users/token', options)
 };
 
+const updateUserData = async (
+  user: UpdateUser,
+  token: string
+): Promise<UpdateResult> => {
+  const options: RequestInit = {
+    method: 'PUT',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(user)
+  }
+  return await fetchData(apiUrl + '/users', options)
+};
+
+const uploadAvatar = async (
+  image: File,
+  token: string
+): Promise<UploadResult> => {
+  const formData = new FormData();
+  formData.append('avatar', image);
+
+  const options: RequestInit = {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + token
+    },
+    body: formData
+  };
+  return await fetchData(apiUrl + '/users/avatar', options)
+}
+
 const addUserDataToDom = (user: User): void => {
   console.log('addUserDataToDom reached');
   const navRight = document.querySelector('#nav-right');
+
+  const profUsername = document.querySelector('#prof-username-target') as HTMLSpanElement | null;
+  const profEmail = document.querySelector('#prof-email-target') as HTMLSpanElement | null;
+  const profAvatar = document.querySelector('#prof-avatar-target') as HTMLImageElement | null;
 
   if (!navRight) {
     return;
@@ -117,10 +155,13 @@ const addUserDataToDom = (user: User): void => {
   usernameText.innerHTML = user.username;
   const avatarTarget = document.createElement('img');
   avatarTarget.id = "avatar-target";
+
   if (user.avatar) {
     avatarTarget.src = uploadUrl + user.avatar;
+    if (profAvatar) profAvatar.src = uploadUrl + user.avatar;
   } else {
     avatarTarget.src = './img/empty-user.png';
+    if (profAvatar) profAvatar.src = './img/empty-user.png';
   }
   const dropdownArrow = document.createElement('img');
   dropdownArrow.id = "dropdown-arrow";
@@ -131,21 +172,26 @@ const addUserDataToDom = (user: User): void => {
   dropdownContent.classList.add("hidden");
   dropdownContent.id = "dropdown";
 
-  const faveRestaurants = document.createElement('p');
-  faveRestaurants.id = "fav-restaurants";
-  faveRestaurants.innerText = 'Suosikit';
+  const profileSettings = document.createElement('p');
+  profileSettings.id = "profile-settings";
+  profileSettings.classList.add('dropdown-item');
+  profileSettings.innerText = 'Profiili';
 
   const logoutBtn = document.createElement('p');
   logoutBtn.id = "logout-btn";
+  logoutBtn.classList.add('dropdown-item');
   logoutBtn.innerText = 'Kirjaudu ulos';
 
-  dropdownContent.appendChild(faveRestaurants);
+  dropdownContent.appendChild(profileSettings);
   dropdownContent.appendChild(logoutBtn);
 
   userTarget.appendChild(avatarTarget);
   userTarget.appendChild(usernameText);
   userTarget.appendChild(dropdownArrow);
   userTarget.appendChild(dropdownContent);
+
+  if (profUsername) profUsername.innerText = user.username;
+  if (profEmail) profEmail.innerText = user.email;
 
   let dropdownVisible = false;
 
@@ -161,16 +207,19 @@ const addUserDataToDom = (user: User): void => {
 
   navRight.appendChild(userTarget);
 
-  const favesModal = document.querySelector('#favorites') as HTMLDialogElement | null;
-  const favesTable = document.querySelector('#lempiravintolat') as HTMLTableElement | null;
+  const settingsModal = document.querySelector('#profile') as HTMLDialogElement | null;
 
-  faveRestaurants.addEventListener('click', () => {
-    const favesList = document.querySelectorAll('.favorite');
-    favesList.forEach((fave) => {
-      favesTable?.appendChild(fave);
-    })
-    favesModal?.showModal();
-  })
+  profileSettings?.addEventListener('click', () => {
+    settingsModal?.showModal();
+  });
+
+  logoutBtn?.addEventListener('click', () => {
+    console.log('Logout button clicked');
+    deleteUserDataFromDOM();
+    localStorage.clear();
+    checkToken();
+    location.reload();
+  });
 
 };
 
@@ -198,6 +247,7 @@ const checkToken = async (): Promise<void> => {
 
 const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
   const table = document.querySelector('table');
+  const faveTarget = document.querySelector('#prof-fave-target');
   if (!table) throw new Error('Table not found!');
   table.innerHTML = '';
 
@@ -211,7 +261,7 @@ const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
     starCont.classList.add('star-cont');
     const faveStar = document.createElement('img');
     faveStar.src = './img/empty-star.png';
-    faveStar.id = 'fave-star';
+    faveStar.classList.add('fave-star');
     starCont.appendChild(faveStar);
     tr.appendChild(distTd);
     tr.appendChild(starCont);
@@ -228,10 +278,22 @@ const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
       starClicked = true;
       if (!loggedIn) {
         alert('Kirjaudu sisään suosikkien tallentamiseksi!');
+        faveStar.src = './img/empty-star.png'
         return;
       } else {
+        document.querySelectorAll('.star-cont').forEach((starCont) => {
+          const star = starCont.querySelector('.fave-star') as HTMLImageElement;
+          star.src = './img/empty-star.png';
+        })
         faveStar.src = './img/fave-star.png';
+        document.querySelectorAll('.favorite').forEach((fave) => {
+          fave.classList.remove('favorite');
+        })
         tr.classList.add('favorite');
+        if (faveTarget) {
+          const faveName = faveTarget.querySelector('#fave-name') as HTMLSpanElement | null;
+          if (faveName) faveName.innerText = restaurant.name;
+        }
       };
     });
 
@@ -253,26 +315,27 @@ const createTable = (restaurants: Restaurant[], pos: GeolocationPosition) => {
 
         // fetch menu
         if (dailySelected) {
-        const menu = await fetchData<DailyMenu>(
-          apiUrl + `/restaurants/daily/${restaurant._id}/fi`
-        );
-        console.log(menu);
+          const menu = await fetchData<DailyMenu>(
+            apiUrl + `/restaurants/daily/${restaurant._id}/fi`
+          );
+          console.log(menu);
 
-        const menuHtml = restaurantModal(restaurant, menu);
-        modal.insertAdjacentHTML('beforeend', menuHtml);
-        const options: MapOptions = {
-          center: latLng(restaurant.location.coordinates[1], restaurant.location.coordinates[0]),
-          zoom: 4.5,
-        };
+          const menuHtml = restaurantModal(restaurant, menu);
+          modal.insertAdjacentHTML('beforeend', menuHtml);
+          const options: MapOptions = {
+            center: latLng(restaurant.location.coordinates[1], restaurant.location.coordinates[0]),
+            zoom: 4.5,
+          };
 
-        const mymap = map('map', options);
+          const mymap = map('map', options);
 
-        tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(mymap);
+          tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          }).addTo(mymap);
 
-        marker([restaurant.location.coordinates[1], restaurant.location.coordinates[0]]).addTo(mymap);
+          marker([restaurant.location.coordinates[1], restaurant.location.coordinates[0]]).addTo(mymap);
+
         } else if (weeklySelected) {
           const menu = await fetchData<WeeklyMenu>(
             apiUrl + `/restaurants/weekly/${restaurant._id}/fi`
@@ -314,9 +377,7 @@ const error = (err: GeolocationPositionError) => {
 const success = async (pos: GeolocationPosition) => {
   try {
     const crd = pos.coords;
-    console.log(crd);
     const restaurants = await fetchData<Restaurant[]>(apiUrl + '/restaurants');
-    console.log(restaurants);
     restaurants.sort((a: Restaurant, b: Restaurant) => {
       const x1 = crd.latitude;
       const y1 = crd.longitude;
@@ -329,6 +390,42 @@ const success = async (pos: GeolocationPosition) => {
       return distanceA - distanceB;
     });
 
+    let darkTheme = false;
+    const toggleTheme = document.querySelector('#light-dark') as HTMLImageElement | null;
+    if (!toggleTheme) throw new Error('Theme toggle button not found!');
+
+    toggleTheme?.addEventListener('mouseover', () => {
+      if (!darkTheme) {
+      toggleTheme.src = './img/dark-btn-hover.png';
+      toggleTheme.title = 'Vaihda tummaan teemaan';
+      } else {
+        toggleTheme.src = './img/lite-btn-hover.png';
+        toggleTheme.title = 'Vaihda kirkkaaseen teemaan';
+      }
+    });
+
+    toggleTheme?.addEventListener('mouseout', () => {
+      if (!darkTheme) {
+        toggleTheme.src = './img/dark-btn.png';
+      } else {
+        toggleTheme.src = './img/lite-btn.png';
+      }
+    });
+
+    toggleTheme?.addEventListener('click', () => {
+      const body = document.body;
+      if (!darkTheme) {
+        body.classList.replace('light-mode', 'dark-mode');
+        darkTheme = true;
+        toggleTheme.src = './img/lite-btn.png';
+      } else {
+        body.classList.replace('dark-mode', 'light-mode');
+        darkTheme = false;
+        toggleTheme.src = './img/dark-btn.png';
+      }
+    })
+
+    // RAVINTOLAHAKU & SUODATTIMET
     const restBtns = document.querySelectorAll('.ravnappi');
     const sodexoBtn = document.querySelector('#sodexo');
     const compassBtn = document.querySelector('#compass');
@@ -410,161 +507,28 @@ const success = async (pos: GeolocationPosition) => {
       }
     });
 
-
+    // KIRJAUTUMINEN
     const loginDialog = <HTMLDialogElement>document.querySelector("#login-screen");
-    const openDialogBtn = document.querySelector('#kirj-rekist');
-    const formContainer = document.querySelector('.form-cont');
+    const openLoginBtn = document.querySelector('#nav-login');
+    const closeLoginBtn = loginDialog.querySelector('.close');
 
-    const loginTab = <HTMLHeadingElement>document.querySelector('#login');
     const loginForm = document.querySelector('#login-form');
     const usernameInput = document.querySelector('#username') as HTMLInputElement | null;
     const passwordInput = document.querySelector('#password') as HTMLInputElement | null;
 
-    const registerTab = <HTMLElement>document.querySelector('#register');
 
+    if (!loginDialog) throw new Error('No login dialog found!');
 
-    if (!loginDialog || !formContainer) throw new Error('No login dialog found!')
+    openLoginBtn?.addEventListener("click", () => loginDialog.showModal());
+    closeLoginBtn?.addEventListener('click', () => loginDialog.close());
 
-    const openDialog = () => {
-      loginDialog.showModal();
-    };
-
-    const closeDialog = (e: Event) => {
-      e.preventDefault();
-      loginDialog.close();
-    };
-
-    openDialogBtn?.addEventListener("click", openDialog);
-
-
-    registerTab?.addEventListener("click", () => {
-      if (loginTab.classList.contains('open-tab')) {
-      loginTab.classList.remove('open-tab');
-      registerTab.classList.add('open-tab');
-      formContainer.innerHTML = '';
-      let html = `
-      <form method="get" class="form-example" id="register-form">
-      <div class="form-example">
-        <label for="regist-username">Käyttäjänimi: </label>
-        <input type="text" name="username" id="regist-username" minlength="3" required>
-      </div>
-      <div class="form-example">
-        <label for="regist-email">Sähköposti: </label>
-        <input type="email" name="email" id="regist-email" required>
-      </div>
-      <div class="form-example">
-          <label for="regist-password">Salasana: </label>
-          <input type="password" name="password" id="regist-password" required>
-      </div>
-      <div class="form-example">
-          <label for="regist-password2">Salasana uudelleen: </label>
-          <input type="password" name="password2" id="regist-password2" title="Anna sama salasana uudelleen!" required>
-      </div>
-      <div class="regist-button">
-        <input type="submit" value="Rekisteröidy" id="rekisteroidy">
-      </div>
-      </form>
-      `;
-      formContainer.insertAdjacentHTML('beforeend', html);
-      console.log('Register tab clicked');
-
-      const registerForm = document.querySelector('#register-form') as HTMLFormElement | null;
-      const registUsername = document.querySelector('#regist-username') as HTMLInputElement | null;
-      const registEmail = document.querySelector('#regist-email') as HTMLInputElement | null;
-      const regPswd = document.querySelector('#regist-password') as HTMLInputElement | null;
-      const regPswd2 = document.querySelector('#regist-password2') as HTMLInputElement | null;
-
-      registerForm?.addEventListener('submit', async (e) => {
-        console.log('Registration started');
-        e.preventDefault();
-
-        if (!registUsername || !registEmail || !regPswd || !regPswd2) return;
-
-        if (regPswd.value != regPswd2.value) {
-          alert('Salasanat eivät täsmää! Yritä uudelleen!');
-          return;
-        }
-
-        const user = {
-          username: registUsername.value,
-          password: regPswd.value,
-          email: registEmail.value
-        };
-
-        console.log('Registering user...');
-        const registData = await register(user);
-        console.log(registData.message);
-        if (registData.message === "user created") {
-          loginDialog.close();
-          const activationPopup = document.querySelector('#activate') as HTMLDialogElement | null;
-          activationPopup?.insertAdjacentHTML('beforeend', '<span class="close">X</span><p>Tili luotu onnistuneesti! Kirjataan sisään...</p>');
-          activationPopup?.showModal();
-
-          const loginUser = {
-            username: registUsername.value,
-            password: regPswd.value
-          }
-
-          console.log('Logging in...');
-          const userData = await login(loginUser);
-          console.log(userData);
-          loggedIn = true;
-
-          localStorage.setItem('token', userData.token);
-          addUserDataToDom(userData.data);
-          console.log('User data added to DOM!');
-          const closePopup = document.querySelector('#close-act-popup') as HTMLSpanElement | null;
-          if (closePopup) {
-            closePopup.addEventListener('click', () => {
-              activationPopup?.close();
-            })
-          }
-          checkToken();
-        }
-      })
-    };
-    });
-
-
-    loginTab?.addEventListener("click", () => {
-      if (registerTab.classList.contains('open-tab')) {
-        registerTab.classList.remove('open-tab');
-        loginTab.classList.add('open-tab');
-        formContainer.innerHTML = '';
-        let html = `
-        <form method="post" class="form-example" id="login-form">
-        <div class="form-example">
-          <label for="username">Käyttäjänimi: </label>
-          <input type="text" name="username" id="username" minlength="3" required>
-       </div>
-        <div class="form-example">
-            <label for="password">Salasana: </label>
-            <input type="password" name="password" id="password" required>
-        </div>
-        <div class="login-button">
-          <input type="submit" value="Kirjaudu" id="kirjaudu-btn">
-        </div>
-        </form>
-        `;
-        formContainer.insertAdjacentHTML('beforeend', html);
-      };
-    });
-
-    const logoutBtn = document.querySelector('#logout-btn') as HTMLButtonElement | null;
-
-    logoutBtn?.addEventListener('click', () => {
-      deleteUserDataFromDOM();
-      localStorage.clear();
-      checkToken();
-      location.reload();
-    })
-    console.log(loginForm);
 
     loginForm?.addEventListener('submit', async (evt) => {
       console.log('Login form submission started');
       evt.preventDefault();
       if (!usernameInput || !passwordInput) return;
 
+      try {
       const user = {
         username: usernameInput.value,
         password: passwordInput.value,
@@ -578,10 +542,131 @@ const success = async (pos: GeolocationPosition) => {
       localStorage.setItem('token', loginData.token);
       addUserDataToDom(loginData.data);
       console.log('User data added to DOM!');
-      closeDialog(evt);
+      loginDialog.close();
       checkToken();
+      } catch (e) {
+        if ((e as Response).status === 401) alert('Käyttäjätiliä ei ole olemassa. Ole hyvä ja yritä uudelleen');
+      }
     });
 
+
+    // REKISTERÖITYMINEN
+    const registerDialog = <HTMLDialogElement>document.querySelector('#register-screen');
+    const openRegisterBtn = document.querySelector('#nav-register');
+    const closeRegisterBtn = registerDialog.querySelector('.close');
+
+    const registerForm = document.querySelector('#register-form');
+    const registUsername = document.querySelector('#regist-username') as HTMLInputElement | null;
+    const registEmail = document.querySelector('#regist-email') as HTMLInputElement | null;
+    const regPswd = document.querySelector('#regist-password') as HTMLInputElement | null;
+    const regPswd2 = document.querySelector('#regist-password2') as HTMLInputElement | null;
+
+    if (!registerDialog) throw new Error('No register dialog found!');
+
+    openRegisterBtn?.addEventListener('click', () => registerDialog.showModal());
+    closeRegisterBtn?.addEventListener('click', () => registerDialog.close());
+
+    registerForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!registUsername || !registEmail || !regPswd || !regPswd2) return;
+
+      if (regPswd.value != regPswd2.value) {
+        alert('Salasanat eivät täsmää!');
+        return;
+      };
+
+      const user = {
+        username: registUsername.value,
+        password: regPswd.value,
+        email: registEmail.value
+      }
+
+      const registerData = await register(user);
+      const activationPopup = document.querySelector('#activate') as HTMLDialogElement | null;
+
+      if (registerData.message === "user created") {
+        registerDialog.close();
+        activationPopup?.insertAdjacentHTML('beforeend', '<p>Tili luotu onnistuneesti! Kirjataan sisään...</p>');
+        activationPopup?.showModal();
+
+        const loginUser = {
+          username: registUsername.value,
+          password: regPswd.value
+        }
+
+        console.log('Logging in...');
+        const userData = await login(loginUser);
+        console.log(userData);
+        loggedIn = true;
+
+        localStorage.setItem('token', userData.token);
+        addUserDataToDom(userData.data);
+        console.log('User data added to DOM!');
+        activationPopup?.close();
+        checkToken();
+      } else {
+        throw new Error('Tapahtui virhe käyttäjätilin luomisessa. Ole hyvä ja yritä uudelleen');
+      };
+
+
+    })
+
+    // KÄYTTÄJÄN PROFIILISIVU
+    const profileDialog = document.querySelector('#profile') as HTMLDialogElement;
+    const closeProfileDialog = profileDialog.querySelector('.close');
+
+    closeProfileDialog?.addEventListener('click', () => {
+      profileDialog.close();
+    })
+    const profileForm = document.querySelector('#profile-form');
+    const avatarForm = document.querySelector('#avatar-form');
+
+    const profileUsernameInput = document.querySelector('#profile-username') as HTMLInputElement | null;
+    const profileEmailInput = document.querySelector('#profile-email') as HTMLInputElement | null;
+
+    const avatarInput = document.querySelector('#avatar') as HTMLInputElement | null;
+
+    profileForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (
+        !profileUsernameInput ||
+        !profileEmailInput
+        ) {
+        return;
+      }
+      const user: UpdateUser = {
+        username: profileUsernameInput.value,
+        email: profileEmailInput.value,
+      };
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return;
+      }
+
+      const updateUser = await updateUserData(user, token);
+      console.log(updateUser);
+      const updatedData = await getUserData(token);
+      addUserDataToDom(updatedData)
+
+    });
+
+    avatarForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!avatarInput?.files) {
+        return;
+      }
+      const image = avatarInput.files[0];
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return;
+      }
+
+      const avatarData = await uploadAvatar(image, token);
+      console.log(avatarData);
+      checkToken();
+    });
 
   } catch (error) {
     modal.innerHTML = errorModal((error as Error).message);

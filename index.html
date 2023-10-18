@@ -15,7 +15,7 @@
     <script type="module" src="./src/main.ts" defer></script>
     <link rel="stylesheet" href="./src/style.css">
   </head>
-  <body>
+  <body class="light-mode">
     <header>
       <nav>
         <div id="nav-left">
@@ -23,7 +23,11 @@
           <h1 class="page-title">OPISKELIJARAVINTOLAT</h1>
         </div>
         <div id="nav-right">
-          <button id="kirj-rekist">Kirjaudu</button>
+          <button id="nav-login" class="nav-btn">Kirjaudu</button>
+          <button id="nav-register" class="nav-btn">Rekisteröidy</button>
+        </div>
+        <div id="toggle-cont">
+          <img src="./img/dark-btn.png" alt="Switch to dark mode" id="light-dark">
         </div>
       </nav>
     </header>
@@ -59,11 +63,9 @@
       <dialog id="restaurant-screen">
         <!-- add restaurant info here when restaurant is clicked -->
       </dialog>
-      <dialog id="login-screen">
-        <div id="tabs">
-          <h2 id="login" class="form-tab open-tab">Kirjaudu sisään</h2>
-          <h2 class="form-tab" id="register">Luo käyttäjätili</h2>
-        </div>
+      <dialog id="login-screen" class="login-register">
+        <h2 id="login" class="form-tab">Kirjaudu sisään</h2>
+        <span class="close">X</span>
         <div class="form-cont">
             <form method="post" class="form-example" id="login-form">
                 <div class="form-example">
@@ -75,16 +77,90 @@
                     <input type="password" name="password" id="password" required>
                 </div>
                 <div class="login-button">
-                  <input type="submit" value="Kirjaudu" id="kirjaudu-btn">
+                  <input type="submit" value="Kirjaudu" id="kirjaudu-btn" class="form-btn">
                 </div>
             </form>
         </div>
       </dialog>
+      <dialog id="register-screen" class="login-register">
+        <h2 id="register" class="form-tab">Luo käyttäjätili</h2>
+        <span class="close">X</span>
+        <div class="form-cont">
+          <form method="get" class="form-example" id="register-form">
+            <div class="form-example">
+              <label for="regist-username">Käyttäjänimi: </label>
+              <input type="text" name="username" id="regist-username" minlength="3" required>
+            </div>
+            <div class="form-example">
+              <label for="regist-email">Sähköposti: </label>
+              <input type="email" name="email" id="regist-email" required>
+            </div>
+            <div class="form-example">
+                <label for="regist-password">Salasana: </label>
+                <input type="password" name="password" id="regist-password" required>
+            </div>
+            <div class="form-example">
+                <label for="regist-password2">Salasana uudelleen: </label>
+                <input type="password" name="password2" id="regist-password2" title="Anna sama salasana uudelleen!" required>
+            </div>
+            <div class="regist-button">
+              <input type="submit" value="Rekisteröidy" id="rekisteroidy" class="form-btn">
+            </div>
+            </form>
+          </div>
+      </dialog>
       <dialog id="activate"></dialog>
       <dialog id="favorites">
-        <span class="close"></span>
+        <span class="close">X</span>
         <h2>Lempiravintolasi</h2>
         <table id="lempiravintolat" class="rest-table"></table>
+      </dialog>
+      <dialog id="profile">
+        <span class="close">X</span>
+        <h2>Omat tiedot</h2>
+        <div id="user-data">
+          <div id="user-data-text">
+            <p><b>Käyttäjänimi:</b></p>
+            <span id="prof-username-target"></span>
+            <p><b>Sähköpostiosoite:</b></p>
+            <span id="prof-email-target"></span>
+            <div id="prof-fave-target">
+              <p><b>Suosikkiravintola:</b></p>
+              <span id="fave-name">Ei valittu</span>
+            </div>
+          </div>
+          <img id="prof-avatar-target" src="" alt="Avatar">
+        </div>
+        <hr>
+
+        <h2>Muokkaa tietojasi</h2>
+        <div class="form-cont">
+          <form id="profile-form">
+            <div class="form-example">
+              <label for="profile-username">Käyttäjänimi</label>
+              <input id="profile-username" type="text" name="username">
+            </div>
+            <div class="form-example">
+              <label for="profile-email">Email</label>
+              <input id="profile-email" type="email" name="email">
+            </div>
+            <div class="form-example">
+              <input type="submit" value="Päivitä" class="form-btn">
+            </div>
+          </form>
+        </div>
+        <hr>
+        <h2>Vaihda profiilikuvasi</h2>
+        <div class="form-cont">
+          <form id="avatar-form">
+            <div class="form-example">
+              <input id="avatar-input" type="file" name="avatar">
+            </div>
+            <div class="form-example">
+              <input type="submit" value="Päivitä" class="form-btn">
+            </div>
+          </form>
+        </div>
       </dialog>
     </div>
   </body>

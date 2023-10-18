@@ -12,18 +12,14 @@ const dropdownOptions = (container: HTMLSelectElement) => {
 }
 
 const restaurantRow = (restaurant: Restaurant) => {
-  const {name, address, company, city} = restaurant;
-  console.log(city);
+  const {name, address} = restaurant;
   const tr = document.createElement('tr');
   const nameCell = document.createElement('td');
   nameCell.innerText = name;
   const addressCell = document.createElement('td');
   addressCell.innerText = address;
-  const companyCell = document.createElement('td');
-  companyCell.innerText = company;
   tr.appendChild(nameCell);
   tr.appendChild(addressCell);
-  tr.appendChild(companyCell);
   return tr;
 };
 

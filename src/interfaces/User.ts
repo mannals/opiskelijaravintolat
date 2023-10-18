@@ -23,8 +23,9 @@ interface RegisterUser {
 }
 
 interface UpdateUser {
-  username: string;
-  email: string;
+  username?: string;
+  password?: string;
+  email?: string;
 }
 
 export type {User, LoginUser, RegisterUser, UpdateUser};
