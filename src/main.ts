@@ -140,9 +140,12 @@ const addUserDataToDom = (user: User): void => {
   console.log('addUserDataToDom reached');
   const navRight = document.querySelector('#nav-right');
 
+  const profCont = document.querySelector('#user-data') as HTMLDivElement | null;
   const profUsername = document.querySelector('#prof-username-target') as HTMLSpanElement | null;
   const profEmail = document.querySelector('#prof-email-target') as HTMLSpanElement | null;
-  const profAvatar = document.querySelector('#prof-avatar-target') as HTMLImageElement | null;
+  const profAvatar = document.createElement('img');
+  profAvatar.id = 'prof-avatar-target';
+  profAvatar.alt = 'Avatar';
 
   if (!navRight) {
     return;
@@ -158,10 +161,12 @@ const addUserDataToDom = (user: User): void => {
 
   if (user.avatar) {
     avatarTarget.src = uploadUrl + user.avatar;
-    if (profAvatar) profAvatar.src = uploadUrl + user.avatar;
+    profAvatar.src = uploadUrl + user.avatar;
+    profCont?.appendChild(profAvatar);
   } else {
     avatarTarget.src = './img/empty-user.png';
-    if (profAvatar) profAvatar.src = './img/empty-user.png';
+    profAvatar.src = './img/empty-user.png';
+    profCont?.appendChild(profAvatar);
   }
   const dropdownArrow = document.createElement('img');
   dropdownArrow.id = "dropdown-arrow";

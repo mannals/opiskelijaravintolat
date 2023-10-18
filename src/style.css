@@ -111,7 +111,6 @@ h1 {
 
 
 button {
-  padding: auto;
   cursor: pointer;
   border: hidden;
   font-family: 'Barlow Medium', sans-serif;
@@ -278,11 +277,8 @@ label {
 
 #haku {
   padding: 0.5rem 2rem;
-}
-
-#haku h2 {
   color: var(--dark);
-  text-shadow: none;
+  font-size: x-large;
 }
 
 #map {
@@ -397,7 +393,6 @@ td {
 }
 
 .star-cont {
-  padding: auto 0;
   margin-right: 0;
 }
 
@@ -423,7 +418,7 @@ dialog {
 }
 
 #restaurant-screen p {
-  color: var()var(--bcg);
+  color: var(--bcg);
 }
 
 #activate p {
