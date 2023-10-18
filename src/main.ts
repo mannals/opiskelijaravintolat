@@ -146,7 +146,6 @@ const addUserDataToDom = (user: User): void => {
   const profAvatar = document.createElement('img');
   profAvatar.id = 'prof-avatar-target';
   profAvatar.alt = 'Avatar';
-  profCont?.appendChild(profAvatar);
 
   if (!navRight) {
     return;
@@ -163,7 +162,8 @@ const addUserDataToDom = (user: User): void => {
   if (user.avatar) {
     avatarTarget.src = uploadUrl + user.avatar;
     profAvatar.src = uploadUrl + user.avatar;
-  } else {
+  }
+  if (!user.avatar) {
     avatarTarget.src = './img/empty-user.png';
     profAvatar.src = './img/empty-user.png';
   }
@@ -224,6 +224,8 @@ const addUserDataToDom = (user: User): void => {
     checkToken();
     location.reload();
   });
+
+  profCont?.appendChild(profAvatar);
 
 };
 
@@ -547,7 +549,6 @@ const success = async (pos: GeolocationPosition) => {
       addUserDataToDom(loginData.data);
       console.log('User data added to DOM!');
       loginDialog.close();
-      checkToken();
       } catch (e) {
         if ((e as Response).status === 401) alert('Käyttäjätiliä ei ole olemassa. Ole hyvä ja yritä uudelleen');
       }
