@@ -2,7 +2,7 @@ import { Restaurant } from "./interfaces/Restaurant";
 import { WeeklyMenu, DailyMenu } from "./interfaces/Menu";
 
 const dropdownOptions = (container: HTMLSelectElement) => {
-  fetch('./src/cities.txt').then(response => response.text()).then((text) => {
+  fetch('./cities.txt').then(response => response.text()).then((text) => {
     text.split(/\r\n|\n/).forEach((line) => {
       const option = document.createElement('option');
       option.innerText = line;

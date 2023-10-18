@@ -1,7 +1,21 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { resolve } from 'path';
 
 export default defineConfig({
+    build: {
+      rollupOptions: {
+        input: {
+          main: resolve(__dirname, 'index.html'),
+          // Add other HTML files here
+        },
+        output: {
+          dir: resolve(__dirname, 'dist'),
+          // Copy the public directory to the dist directory
+          assetFileNames: 'assets/[name]-[hash][extname]',
+        },
+      },
+    },
     base: './',
     plugins: [
         VitePWA({
@@ -55,5 +69,7 @@ export default defineConfig({
                 ]
             }
         })
-    ]
+    ],
+    publicDir: 'public',
+    assetsInclude: ['favicon-*.ico', 'favicon.ico', 'icon-*.png']
 })

@@ -146,6 +146,7 @@ const addUserDataToDom = (user: User): void => {
   const profAvatar = document.createElement('img');
   profAvatar.id = 'prof-avatar-target';
   profAvatar.alt = 'Avatar';
+  profCont?.appendChild(profAvatar);
 
   if (!navRight) {
     return;
@@ -162,11 +163,9 @@ const addUserDataToDom = (user: User): void => {
   if (user.avatar) {
     avatarTarget.src = uploadUrl + user.avatar;
     profAvatar.src = uploadUrl + user.avatar;
-    profCont?.appendChild(profAvatar);
   } else {
     avatarTarget.src = './img/empty-user.png';
     profAvatar.src = './img/empty-user.png';
-    profCont?.appendChild(profAvatar);
   }
   const dropdownArrow = document.createElement('img');
   dropdownArrow.id = "dropdown-arrow";
